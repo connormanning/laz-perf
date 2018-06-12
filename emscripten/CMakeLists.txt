@@ -13,6 +13,9 @@ set(CMAKE_CXX_FLAGS "--bind -s TOTAL_MEMORY=167772160 -s DISABLE_EXCEPTION_CATCH
 if (WASM)
   message(MESSAGE " :: WASM Emscripten output has been enabled")
   set(CMAKE_CXX_FLAGS "-s WASM=1 -s \"BINARYEN_METHOD='native-wasm'\" ${CMAKE_CXX_FLAGS}")
+else()
+  message(MESSAGE " :: WASM Emscripten output has been DISABLED")
+  set(CMAKE_CXX_FLAGS "-s WASM=0 ${CMAKE_CXX_FLAGS}")
 endif()
 
 add_executable(laz-perf laz-perf.cpp)

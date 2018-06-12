@@ -16,7 +16,6 @@ benchmarks/brute
 benchmarks/brute_point10
 benchmarks/laszip
 .DS_Store
-*.js
 *.js.map
 .vagrant/
 CTestTestfile.cmake

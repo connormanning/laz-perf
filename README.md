@@ -1,49 +1,53 @@
-[![Build Status](https://travis-ci.org/hobu/laz-perf.svg?branch=master)](https://travis-ci.org/hobu/laz-perf)
-[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/o3qv0njdw5hvk47f)](https://ci.appveyor.com/project/hobu/laz-perf/)
+```
+mkdir build && cd build
+cmake -DEMSCRIPTEN=1 \
+    -DCMAKE_TOOLCHAIN_FILE=~/code/emsdk/emscripten/1.38.5/cmake/Modules/Platform/Emscripten.cmake
+make
 
-# What is this?
-Alternative [LAZ](http://laszip.org) implementation. It supports compilation and usage
-in JavaScript, usage in database contexts such as pgpointcloud and Oracle Point Cloud, and
-it executes faster than the LASzip codebase.
+cd ..
+```
 
-# Why?
-The Emscripten/WebAssembly output for LASzip to JavaScript was unusably slow.  The generated
-JavaScript code is not going to be a feasible solution to bring LASzip to all
-browsers.  This project provides an alternative implementation that plays
-nice with Emscripten and provides a more rigorous software engineering approach
-to a LASzip implementation.
+```
+$ node merge.js && node combined.js
+XYZ[0] -195608 335044 -3627
+RGB[0] 15616 20224 13312
 
-# Benchmark results so far
+XYZ[1] -195096 476622 8194
+RGB[1] 1 161 155
 
-All tests were run on a 2013 Macbook Pro `2.6 Ghz Intel Core i7 16GB 1600 MHz DD3`.  Arithmetic encoder was run on a 4 field struct with two signed and two unsigned fields.  Please see the `benchmarks/brute.cpp` for how these tests were run.  The emscriten version used was `Emscripten v1.14.0, fastcomp LLVM, JS host: Node v0.10.18`
+XYZ[2] 67560 306732 -10090
+RGB[2] 1 94 102
+```
 
-### Native:
+```
+$ g++ -std=c++11 cpp.cpp -I laz-perf && ./a.out
+XYZ[0]: -195608 335044 -3627
+RGB[0]: 15616 20224 13312
 
-          Count       Comp Init       Comp Time      Comp Flush     Decomp Init     Decomp Time
-           1000        0.000001        0.000279        0.000000        0.000000        0.000297
-          10000        0.000000        0.001173        0.000000        0.000000        0.001512
-         100000        0.000000        0.009104        0.000000        0.000000        0.011168
-        1000000        0.000000        0.082419        0.000000        0.000000        0.108797
+XYZ[1]: -195096 476622 8194
+RGB[1]: 41216 39680 38400
 
-### Node.js, test runtime JS v0.10.25
+XYZ[2]: 67560 306732 -10090
+RGB[2]: 24064 26112 25600
+```
 
-          Count       Comp Init       Comp Time      Comp Flush     Decomp Init     Decomp Time
-           1000        0.000586        0.014682        0.000273        0.000383        0.008012
-          10000        0.000022        0.017960        0.000009        0.000004        0.020219
-         100000        0.000030        0.128615        0.000008        0.000004        0.141459
-        1000000        0.000010        1.245053        0.000009        0.000005        1.396419
+```
+$ pdal info wide-color.laz -p 0
+      "X": 348647.392,
+      "Y": 3068495.044,
+      "Z": 1360.373,
+      "Red": 15616,
+      "Green": 20224,
+      "Blue": 13312
+      ...
 
-### Firefox, v28.0
-          Count       Comp Init       Comp Time      Comp Flush     Decomp Init     Decomp Time
-           1000        0.000005        0.001311        0.000006        0.000003        0.000820
-          10000        0.000003        0.007966        0.000004        0.000001        0.007299
-         100000        0.000001        0.062016        0.000003        0.000001        0.064037
-        1000000        0.000002        0.662454        0.000009        0.000003        0.673866
+$ pdal info wide-color.laz -p 0
+      "X": 348647.904,
+      "Y": 3068636.622,
+      "Z": 1372.194,
+      "Red": 41216,
+      "Green": 39680,
+      "Blue": 38400,
+      ...
+```
 
-### Google Chrome, v34.0.1847.116
-
-          Count       Comp Init       Comp Time      Comp Flush     Decomp Init     Decomp Time
-           1000        0.000751        0.012357        0.000424        0.000516        0.008413
-          10000        0.000016        0.006971        0.000016        0.000004        0.009481
-         100000        0.000008        0.059768        0.000009        0.000004        0.070253
-        1000000        0.000009        0.576017        0.000019        0.000005        0.658435
